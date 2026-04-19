@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -521,6 +521,82 @@
             gap: 0.7rem;
         }
 
+        .subject-breakdown {
+            padding: 0 var(--page-padding) 2rem;
+        }
+
+        .subject-panels {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .subject-panel {
+            display: grid;
+            gap: 0.95rem;
+            border-left: 1px solid var(--line);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1rem 0 1rem 1rem;
+        }
+
+        .subject-panel__header {
+            display: grid;
+            gap: 0.3rem;
+        }
+
+        .subject-panel__code {
+            color: var(--mist);
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .subject-panel__name {
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .subject-panel__note {
+            color: var(--mist);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            max-width: 60ch;
+        }
+
+        .component-list {
+            display: grid;
+            gap: 0;
+        }
+
+        .component-row {
+            display: grid;
+            grid-template-columns: minmax(88px, 0.7fr) minmax(120px, 0.95fr) minmax(170px, 1.1fr) minmax(150px, 0.95fr);
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .component-row:first-child {
+            border-top: 0;
+        }
+
+        .component-row__block {
+            display: grid;
+            gap: 0.28rem;
+        }
+
+        .component-row__value {
+            color: var(--paper-white);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .component-row__subvalue {
+            color: var(--mist);
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
         .subject-item {
             display: grid;
             gap: 0.18rem;
@@ -570,6 +646,10 @@
             .reference-grid {
                 grid-template-columns: 1fr;
             }
+
+            .subject-panels {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 820px) {
@@ -604,6 +684,11 @@
             .event-row__meta,
             .event-row__delta {
                 padding-left: 1rem;
+            }
+
+            .component-row {
+                grid-template-columns: 1fr;
+                gap: 0.6rem;
             }
         }
 
@@ -719,13 +804,15 @@
             <div class="timeline__head">
                 <div id="timelineHeading" class="eyebrow">ALL DATES ON ONE PAGE</div>
                 <p class="timeline__summary">
-                    Click any row to retarget the main countdown. Each line is marked as either
-                    <strong>HIGH-CONFIDENCE PROJECTION</strong> or <strong>MEDIUM-CONFIDENCE PROJECTION</strong>
-                    so the page can stay tense without faking certainty.
+                    Every tracked paper and component sits here on its own row: oral tests, listening tests, Paper 1,
+                    Paper 2, Paper 3 practicals, single-paper subjects, and results. Click any row to retarget the
+                    main countdown. Each line stays marked as either <strong>HIGH-CONFIDENCE PROJECTION</strong> or
+                    <strong>MEDIUM-CONFIDENCE PROJECTION</strong> so the page stays tense without pretending the full
+                    2027 timetable is already official.
                 </p>
             </div>
 
-            <div id="eventList" class="event-list" aria-label="SPM 2027 milestones"></div>
+            <div id="eventList" class="event-list" aria-label="SPM 2027 papers and components"></div>
 
             <div class="model-note">
                 <div class="eyebrow">MODEL BASIS</div>
@@ -743,13 +830,28 @@
             </div>
         </section>
 
+        <section class="subject-breakdown" aria-labelledby="subjectBreakdownHeading">
+            <div class="timeline__head">
+                <div id="subjectBreakdownHeading" class="eyebrow">SUBJECT-BY-SUBJECT BREAKDOWN</div>
+                <p class="timeline__summary">
+                    Current official structure matters more than vague phase labels. Each subject below is split into its own
+                    tracked components, so Physics practical, Biology Paper 2, History Paper 1, Moral Education, oral tests,
+                    listening tests, and written papers all stand separately instead of collapsing into one broad line.
+                </p>
+            </div>
+
+            <div id="subjectPanels" class="subject-panels"></div>
+        </section>
+
         <section class="reference-grid" aria-label="Model references">
             <div class="reference-block">
                 <div class="eyebrow">SPM 2025 // OFFICIAL</div>
                 <div class="reference-list">
                     <div>Malay oral: 03-06 Nov 2025</div>
                     <div>English oral: 10-13 Nov 2025</div>
-                    <div>Science practical: 17-19 Nov 2025</div>
+                    <div>Physics practical: 17 Nov 2025</div>
+                    <div>Chemistry practical: 18 Nov 2025</div>
+                    <div>Biology practical: 19 Nov 2025</div>
                     <div>Listening: 20 Nov 2025</div>
                     <div>Written papers: 25 Nov-23 Dec 2025</div>
                     <div>Results: 31 Mar 2026</div>
@@ -776,7 +878,7 @@
 
         <div class="footer-note">
             <strong>Integrity note:</strong> this page deliberately creates pressure through real numbers, looming motion, and unresolved structure.
-            It also follows the subject set recovered from your provided March 2026 timetable PDF, but it must not be presented as an official KPM source until the real 2027 schedule is published.
+            It also follows the subject set recovered from your provided March 2026 timetable PDF, with the extra school-only subject intentionally excluded because you said not to include it, but it must not be presented as an official KPM source until the real 2027 schedule is published.
         </div>
     </div>
 
@@ -791,117 +893,54 @@
             {
                 code: "BM",
                 name: "Malay Language",
-                track: "Oral, listening, and written papers are tracked here.",
+                track: "4 tracked components: Paper 3 oral, Paper 4 listening, Paper 1, and Paper 2.",
             },
             {
                 code: "BI",
                 name: "English Language",
-                track: "Oral, listening, and written papers are tracked here.",
+                track: "4 tracked components: Paper 3 oral, Paper 4 listening, Paper 1, and Paper 2.",
             },
             {
                 code: "BC",
                 name: "Chinese Language",
-                track: "Tracked as a written-paper subject from your timetable.",
+                track: "2 tracked written components: Paper 1 and Paper 2.",
             },
             {
                 code: "MM",
                 name: "Mathematics",
-                track: "Tracked as a written-paper subject from your timetable.",
+                track: "2 tracked written components: Paper 1 and Paper 2.",
             },
             {
                 code: "MT",
                 name: "Additional Mathematics",
-                track: "Tracked as a written-paper subject from your timetable.",
+                track: "2 tracked written components: Paper 1 and Paper 2.",
+            },
+            {
+                code: "SEJ",
+                name: "History",
+                track: "2 tracked written components: Paper 1 and Paper 2.",
+            },
+            {
+                code: "PM",
+                name: "Moral Education",
+                track: "1 tracked written component in the official 2025 timetable pattern.",
+            },
+            {
+                code: "FIZ",
+                name: "Physics",
+                track: "3 tracked components: Paper 3 practical, Paper 1, and Paper 2.",
             },
             {
                 code: "KIM",
                 name: "Chemistry",
-                track: "Tracked under science practical and written-paper phases.",
+                track: "3 tracked components: Paper 3 practical, Paper 1, and Paper 2.",
             },
             {
                 code: "BIO",
                 name: "Biology",
-                track: "Tracked under science practical and written-paper phases.",
-            },
-            {
-                code: "PJK",
-                name: "Physical & Health Education",
-                track: "Recovered from your timetable, but not modeled here as an SPM written paper.",
+                track: "3 tracked components: Paper 3 practical, Paper 1, and Paper 2.",
             },
         ];
-
-        const MILESTONES = [
-            {
-                id: "bm-oral",
-                code: "BM // ORAL",
-                title: "Malay oral exam begins",
-                date: "2027-11-01T08:00:00+08:00",
-                status: "HIGH-CONFIDENCE PROJECTION",
-                subjects: ["Malay Language"],
-                basis:
-                    "Projected onto Monday, 1 November 2027 because the 2027 calendar mirrors the official 2025 Monday-to-Thursday opening block unusually well. This is stronger than a random placeholder.",
-            },
-            {
-                id: "bi-oral",
-                code: "BI // ORAL",
-                title: "English oral exam begins",
-                date: "2027-11-08T08:00:00+08:00",
-                status: "HIGH-CONFIDENCE PROJECTION",
-                subjects: ["English Language"],
-                basis:
-                    "Placed one week after the Malay oral block, matching the official 2025 pattern that separates the two spoken components into consecutive weekly windows.",
-            },
-            {
-                id: "science-practical",
-                code: "SCIENCE // PRACTICAL",
-                title: "Science practical exam begins",
-                date: "2027-11-15T08:00:00+08:00",
-                status: "HIGH-CONFIDENCE PROJECTION",
-                subjects: ["Chemistry", "Biology"],
-                basis:
-                    "Aligned to the third week of November because official SPM 2025 places science practicals after both oral blocks inside a dense three-school-day cluster.",
-            },
-            {
-                id: "listening",
-                code: "BM+BI // LISTENING",
-                title: "Malay and English listening test",
-                date: "2027-11-18T08:00:00+08:00",
-                status: "HIGH-CONFIDENCE PROJECTION",
-                subjects: ["Malay Language", "English Language"],
-                basis:
-                    "Projected onto the Thursday immediately after science practicals, matching official SPM 2025 where listening sits directly before the written phase.",
-            },
-            {
-                id: "written-start",
-                code: "SPM // WRITTEN START",
-                title: "Written papers begin",
-                date: "2027-11-23T08:00:00+08:00",
-                status: "HIGH-CONFIDENCE PROJECTION",
-                subjects: ["Malay Language", "English Language", "Chinese Language", "Mathematics", "Additional Mathematics", "Biology", "Chemistry"],
-                basis:
-                    "This keeps the official 2025 rhythm intact: written papers open on a Tuesday after a short pause from listening, preserving the same exam cadence.",
-            },
-            {
-                id: "written-end",
-                code: "SPM // WRITTEN END",
-                title: "Written papers end",
-                date: "2027-12-21T15:00:00+08:00",
-                status: "HIGH-CONFIDENCE PROJECTION",
-                subjects: ["Malay Language", "English Language", "Chinese Language", "Mathematics", "Additional Mathematics", "Biology", "Chemistry"],
-                basis:
-                    "The closing date is set on Tuesday, 21 December 2027 so the full written window almost mirrors the official 2025 span of roughly four calendar weeks.",
-            },
-            {
-                id: "results",
-                code: "RESULTS // RELEASE",
-                title: "SPM 2027 results are released",
-                date: "2028-03-30T10:00:00+08:00",
-                status: "MEDIUM-CONFIDENCE PROJECTION",
-                subjects: ["Malay Language", "English Language", "Chinese Language", "Mathematics", "Additional Mathematics", "Biology", "Chemistry"],
-                basis:
-                    "This is the weakest projection. It lands at the end of March 2028 because SPM 2023 results were released on 27 May 2024, SPM 2024 on 24 April 2025, and SPM 2025 on 31 March 2026. The trend is moving earlier, but the processing gap is still not stable enough to claim precision.",
-            },
-        ].map((item) => ({ ...item, timestamp: new Date(item.date).getTime() }));
 
         const elements = {
             heroFocus: document.getElementById("heroFocus"),
@@ -923,6 +962,7 @@
             selectedBasisTag: document.getElementById("selectedBasisTag"),
             selectedBasisText: document.getElementById("selectedBasisText"),
             subjectCoverageList: document.getElementById("subjectCoverageList"),
+            subjectPanels: document.getElementById("subjectPanels"),
         };
 
         const numberFormatter = new Intl.NumberFormat("en-US");
@@ -947,11 +987,351 @@
             timeZone: "Asia/Kuala_Lumpur",
         });
 
+        const SUBJECT_BREAKDOWN = [
+            {
+                code: "BM",
+                name: "Malay Language",
+                note: "Current official structure: 4 tracked components. Oral, listening, and two written papers are modeled separately.",
+                components: [
+                    {
+                        id: "bm-paper3",
+                        paper: "Paper 3",
+                        label: "Oral test",
+                        slot: "01-04 Nov 2027",
+                        date: "2027-11-01T08:00:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 03-06 Nov 2025 oral block.",
+                    },
+                    {
+                        id: "bm-paper4",
+                        paper: "Paper 4",
+                        label: "Listening test",
+                        slot: "18 Nov 2027 // 09:00",
+                        date: "2027-11-18T09:00:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 20 Nov 2025 listening day.",
+                    },
+                    {
+                        id: "bm-paper1",
+                        paper: "Paper 1",
+                        label: "Written paper",
+                        slot: "23 Nov 2027 // 08:15",
+                        date: "2027-11-23T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 25 Nov 2025 written slot.",
+                    },
+                    {
+                        id: "bm-paper2",
+                        paper: "Paper 2",
+                        label: "Written paper",
+                        slot: "23 Nov 2027 // 14:30",
+                        date: "2027-11-23T14:30:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 25 Nov 2025 written slot.",
+                    },
+                ],
+            },
+            {
+                code: "BI",
+                name: "English Language",
+                note: "Current official structure: 4 tracked components. Oral, listening, and two written papers are modeled separately.",
+                components: [
+                    {
+                        id: "bi-paper3",
+                        paper: "Paper 3",
+                        label: "Oral test",
+                        slot: "08-11 Nov 2027",
+                        date: "2027-11-08T08:00:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 10-13 Nov 2025 oral block.",
+                    },
+                    {
+                        id: "bi-paper4",
+                        paper: "Paper 4",
+                        label: "Listening test",
+                        slot: "18 Nov 2027 // 11:00",
+                        date: "2027-11-18T11:00:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 20 Nov 2025 listening day.",
+                    },
+                    {
+                        id: "bi-paper1",
+                        paper: "Paper 1",
+                        label: "Written paper",
+                        slot: "24 Nov 2027 // 08:15",
+                        date: "2027-11-24T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 26 Nov 2025 written slot.",
+                    },
+                    {
+                        id: "bi-paper2",
+                        paper: "Paper 2",
+                        label: "Written paper",
+                        slot: "24 Nov 2027 // 11:15",
+                        date: "2027-11-24T11:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 26 Nov 2025 written slot.",
+                    },
+                ],
+            },
+            {
+                code: "BC",
+                name: "Chinese Language",
+                note: "Current official structure: 2 tracked written components in the official timetable pattern I checked.",
+                components: [
+                    {
+                        id: "bc-paper1",
+                        paper: "Paper 1",
+                        label: "Written paper",
+                        slot: "21 Dec 2027 // 08:15",
+                        date: "2027-12-21T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 23 Dec 2025 written slot.",
+                    },
+                    {
+                        id: "bc-paper2",
+                        paper: "Paper 2",
+                        label: "Written paper",
+                        slot: "21 Dec 2027 // 14:30",
+                        date: "2027-12-21T14:30:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 23 Dec 2025 written slot.",
+                    },
+                ],
+            },
+            {
+                code: "MM",
+                name: "Mathematics",
+                note: "Current official structure: 2 written components.",
+                components: [
+                    {
+                        id: "math-paper1",
+                        paper: "Paper 1",
+                        label: "Written paper",
+                        slot: "29 Nov 2027 // 08:15",
+                        date: "2027-11-29T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 01 Dec 2025 written slot.",
+                    },
+                    {
+                        id: "math-paper2",
+                        paper: "Paper 2",
+                        label: "Written paper",
+                        slot: "29 Nov 2027 // 10:45",
+                        date: "2027-11-29T10:45:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 01 Dec 2025 written slot.",
+                    },
+                ],
+            },
+            {
+                code: "MT",
+                name: "Additional Mathematics",
+                note: "Current official structure: 2 written components.",
+                components: [
+                    {
+                        id: "addmath-paper1",
+                        paper: "Paper 1",
+                        label: "Written paper",
+                        slot: "13 Dec 2027 // 08:15",
+                        date: "2027-12-13T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 15 Dec 2025 written slot.",
+                    },
+                    {
+                        id: "addmath-paper2",
+                        paper: "Paper 2",
+                        label: "Written paper",
+                        slot: "13 Dec 2027 // 14:30",
+                        date: "2027-12-13T14:30:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 15 Dec 2025 written slot.",
+                    },
+                ],
+            },
+            {
+                code: "SEJ",
+                name: "History",
+                note: "Current official structure: 2 tracked written components. Paper 1 and Paper 2 stay separate here.",
+                components: [
+                    {
+                        id: "history-paper1",
+                        paper: "Paper 1",
+                        label: "Written paper",
+                        slot: "25 Nov 2027 // 08:15",
+                        date: "2027-11-25T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 27 Nov 2025 written slot.",
+                    },
+                    {
+                        id: "history-paper2",
+                        paper: "Paper 2",
+                        label: "Written paper",
+                        slot: "25 Nov 2027 // 10:30",
+                        date: "2027-11-25T10:30:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 27 Nov 2025 written slot.",
+                    },
+                ],
+            },
+            {
+                code: "PM",
+                name: "Moral Education",
+                note: "Current official structure: 1 tracked written component in the official 2025 timetable.",
+                components: [
+                    {
+                        id: "moral-paper",
+                        paper: "Paper",
+                        label: "Written paper",
+                        slot: "30 Nov 2027 // 08:15",
+                        date: "2027-11-30T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 02 Dec 2025 written slot.",
+                    },
+                ],
+            },
+            {
+                code: "FIZ",
+                name: "Physics",
+                note: "Current official structure: 3 tracked components. Physics practical, Paper 1, and Paper 2 are split explicitly.",
+                components: [
+                    {
+                        id: "physics-paper3",
+                        paper: "Paper 3",
+                        label: "Practical exam",
+                        slot: "15 Nov 2027 // first session 08:05",
+                        date: "2027-11-15T08:05:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 17 Nov 2025 practical slot.",
+                    },
+                    {
+                        id: "physics-paper1",
+                        paper: "Paper 1",
+                        label: "Written paper",
+                        slot: "02 Dec 2027 // 08:15",
+                        date: "2027-12-02T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 04 Dec 2025 written slot.",
+                    },
+                    {
+                        id: "physics-paper2",
+                        paper: "Paper 2",
+                        label: "Written paper",
+                        slot: "02 Dec 2027 // 10:30",
+                        date: "2027-12-02T10:30:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 04 Dec 2025 written slot.",
+                    },
+                ],
+            },
+            {
+                code: "KIM",
+                name: "Chemistry",
+                note: "Current official structure: 3 tracked components. Practical and two written papers are separated here.",
+                components: [
+                    {
+                        id: "chem-paper3",
+                        paper: "Paper 3",
+                        label: "Practical exam",
+                        slot: "16 Nov 2027 // first session 08:05",
+                        date: "2027-11-16T08:05:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 18 Nov 2025 practical slot.",
+                    },
+                    {
+                        id: "chem-paper1",
+                        paper: "Paper 1",
+                        label: "Written paper",
+                        slot: "06 Dec 2027 // 08:15",
+                        date: "2027-12-06T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 08 Dec 2025 written slot.",
+                    },
+                    {
+                        id: "chem-paper2",
+                        paper: "Paper 2",
+                        label: "Written paper",
+                        slot: "06 Dec 2027 // 10:45",
+                        date: "2027-12-06T10:45:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 08 Dec 2025 written slot.",
+                    },
+                ],
+            },
+            {
+                code: "BIO",
+                name: "Biology",
+                note: "Current official structure: 3 tracked components. Biology practical, Paper 1, and Paper 2 are split explicitly.",
+                components: [
+                    {
+                        id: "bio-paper3",
+                        paper: "Paper 3",
+                        label: "Practical exam",
+                        slot: "17 Nov 2027 // first session 08:05",
+                        date: "2027-11-17T08:05:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 19 Nov 2025 practical slot.",
+                    },
+                    {
+                        id: "bio-paper1",
+                        paper: "Paper 1",
+                        label: "Written paper",
+                        slot: "08 Dec 2027 // 08:15",
+                        date: "2027-12-08T08:15:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 10 Dec 2025 written slot.",
+                    },
+                    {
+                        id: "bio-paper2",
+                        paper: "Paper 2",
+                        label: "Written paper",
+                        slot: "08 Dec 2027 // 10:45",
+                        date: "2027-12-08T10:45:00+08:00",
+                        confidence: "High-confidence projection",
+                        source: "Mirrors the official 10 Dec 2025 written slot.",
+                    },
+                ],
+            },
+        ].map((subject) => ({
+            ...subject,
+            components: subject.components.map((component) => ({
+                ...component,
+                timestamp: component.date ? new Date(component.date).getTime() : null,
+            })),
+        }));
+
+        const MILESTONES = [
+            ...SUBJECT_BREAKDOWN.flatMap((subject) =>
+                subject.components.map((component) => ({
+                    id: component.id,
+                    code: `${subject.code} // ${component.paper.toUpperCase()}`,
+                    title: `${subject.name} ${component.paper}: ${component.label}`,
+                    date: component.date,
+                    status: component.confidence.toUpperCase(),
+                    subjects: [subject.name],
+                    basis: `${component.source} This row stays at paper level so the main countdown tracks the actual component, not a broad exam phase.`,
+                })),
+            ),
+            {
+                id: "results",
+                code: "SPM // RESULTS",
+                title: "SPM 2027 results release",
+                date: "2028-03-30T10:00:00+08:00",
+                status: "MEDIUM-CONFIDENCE PROJECTION",
+                subjects: SUBJECTS.map((subject) => subject.name),
+                basis:
+                    "This is the weakest projection. It lands at the end of March 2028 because SPM 2023 results were released on 27 May 2024, SPM 2024 on 24 April 2025, and SPM 2025 on 31 March 2026. The trend is moving earlier, but the processing gap is still not stable enough to claim precision.",
+            },
+        ]
+            .map((item) => ({ ...item, timestamp: new Date(item.date).getTime() }))
+            .sort((a, b) => a.timestamp - b.timestamp);
+
         let selectedId = getNearestUpcomingEvent().id;
         let lastRenderedSecond = -1;
 
         renderSubjectCoverage();
         renderEventRows();
+        renderSubjectPanels();
         updateSelectedBasis(getSelectedEvent());
         requestAnimationFrame(tick);
 
@@ -973,7 +1353,12 @@
                 row.className = "event-row";
                 row.dataset.id = item.id;
 
-                const pillClass = item.status === "HIGH-CONFIDENCE PROJECTION" ? "pill--predicted-high" : "pill--predicted-mid";
+                const pillClass =
+                    item.status === "HIGH-CONFIDENCE PROJECTION"
+                        ? "pill--predicted-high"
+                        : item.status === "MEDIUM-CONFIDENCE PROJECTION"
+                          ? "pill--predicted-mid"
+                          : "pill--official";
 
                 row.innerHTML = `
                     <div class="event-row__name">
@@ -1024,6 +1409,51 @@
             }
         }
 
+        function renderSubjectPanels() {
+            elements.subjectPanels.innerHTML = "";
+
+            for (const subject of SUBJECT_BREAKDOWN) {
+                const panel = document.createElement("section");
+                panel.className = "subject-panel";
+
+                const componentRows = subject.components
+                    .map((component) => `
+                        <div class="component-row">
+                            <div class="component-row__block">
+                                <div class="event-row__hint">Component</div>
+                                <div class="component-row__value">${component.paper}</div>
+                            </div>
+                            <div class="component-row__block">
+                                <div class="event-row__hint">Type</div>
+                                <div class="component-row__value">${component.label}</div>
+                            </div>
+                            <div class="component-row__block">
+                                <div class="event-row__hint">Projected slot</div>
+                                <div class="component-row__value">${component.slot}</div>
+                                <div class="component-row__subvalue">${component.source}</div>
+                            </div>
+                            <div class="component-row__block">
+                                <div class="event-row__hint">Delta</div>
+                                <div class="component-row__value" data-component-delta="${component.id}">--</div>
+                                <div class="component-row__subvalue">${component.confidence}</div>
+                            </div>
+                        </div>
+                    `)
+                    .join("");
+
+                panel.innerHTML = `
+                    <div class="subject-panel__header">
+                        <div class="subject-panel__code">${subject.code}</div>
+                        <div class="subject-panel__name">${subject.name}</div>
+                        <div class="subject-panel__note">${subject.note}</div>
+                    </div>
+                    <div class="component-list">${componentRows}</div>
+                `;
+
+                elements.subjectPanels.appendChild(panel);
+            }
+        }
+
         function syncActiveRow() {
             const rows = elements.eventList.querySelectorAll(".event-row");
             rows.forEach((row) => {
@@ -1061,6 +1491,7 @@
                 updateHero(selected);
                 updateCountdownValues(selected, now);
                 updateEventDeltas(now);
+                updateComponentDeltas(now);
             }
 
             requestAnimationFrame(tick);
@@ -1113,6 +1544,42 @@
                     deltaNode.textContent = `T-${numberFormatter.format(totalHours)} HOURS ${pad(minutesLeft)} MINUTES`;
                 }
             }
+        }
+
+        function updateComponentDeltas(now) {
+            for (const subject of SUBJECT_BREAKDOWN) {
+                for (const component of subject.components) {
+                    const deltaNode = elements.subjectPanels.querySelector(`[data-component-delta="${component.id}"]`);
+                    if (!deltaNode) {
+                        continue;
+                    }
+
+                    if (!component.timestamp) {
+                        deltaNode.textContent = "N/A";
+                        continue;
+                    }
+
+                    const diffMs = component.timestamp - now;
+                    deltaNode.textContent = formatDelta(diffMs);
+                }
+            }
+        }
+
+        function formatDelta(diffMs) {
+            if (diffMs <= 0) {
+                return "PASSED";
+            }
+
+            const totalHours = Math.floor(diffMs / 3600000);
+            const totalDays = Math.floor(diffMs / 86400000);
+            const hoursLeft = Math.floor((diffMs % 86400000) / 3600000);
+
+            if (totalDays >= 1) {
+                return `T-${numberFormatter.format(totalDays)} DAYS ${pad(hoursLeft)} HOURS`;
+            }
+
+            const minutesLeft = Math.floor((diffMs % 3600000) / 60000);
+            return `T-${numberFormatter.format(totalHours)} HOURS ${pad(minutesLeft)} MINUTES`;
         }
 
         function getBreakdown(nowMs, targetMs) {
