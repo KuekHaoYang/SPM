@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPM 2027 // Audit Countdown</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --void-black: #050505;
+            --paper-white: #e6e6e6;
+            --graphite: #333333;
+            --graphite-soft: #1a1a1a;
+            --mist: #8a8a8a;
+            --correction-red: #ff2a2a;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+            --page-padding: clamp(1rem, 2vw, 2rem);
+            --line: rgba(255, 255, 255, 0.12);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--void-black);
+            color: var(--paper-white);
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="2" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="200" height="200" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+
+        .looming-grid {
+            position: fixed;
+            inset: -55%;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(230, 230, 230, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(230, 230, 230, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform-origin: center center;
+            animation: loom 15s linear infinite;
+        }
+
+        @keyframes loom {
+            0% {
+                transform: scale(1);
+                opacity: 0;
+            }
+
+            20%,
+            78% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.34);
+                opacity: 0;
+            }
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.35rem var(--page-padding);
+            border-bottom: 1px solid var(--line);
+            text-transform: uppercase;
+            letter-spacing: 0.11em;
+            font-size: 0.75rem;
+        }
+
+        .topbar__left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .topbar__right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.4rem;
+            text-align: right;
+        }
+
+        .muted {
+            color: var(--mist);
+        }
+
+        .status-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: var(--correction-red);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--correction-red);
+            animation: blink 1.4s steps(2, start) infinite;
+        }
+
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .hero {
+            min-height: calc(100vh - 62px);
+            display: grid;
+            align-items: end;
+            padding: clamp(3rem, 6vh, 5rem) var(--page-padding) clamp(2rem, 4vh, 3rem);
+        }
+
+        .hero__shell {
+            display: grid;
+            gap: 1.3rem;
+            max-width: 1200px;
+        }
+
+        .eyebrow {
+            color: var(--mist);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            font-size: 0.74rem;
+        }
+
+        .hero__title {
+            display: grid;
+            gap: 0.45rem;
+        }
+
+        .hero__focus {
+            font-size: clamp(1.1rem, 1.6vw, 1.5rem);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--paper-white);
+        }
+
+        .hero__date {
+            font-size: clamp(0.85rem, 1.1vw, 1rem);
+            color: var(--mist);
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+        }
+
+        .hero__seconds-label {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .hero__seconds {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            max-width: 100%;
+        }
+
+        .massive-seconds {
+            font-size: clamp(3.9rem, 12vw, 13rem);
+            line-height: 0.95;
+            letter-spacing: -0.06em;
+            font-weight: 700;
+            max-width: 100%;
+            word-break: break-word;
+        }
+
+        .seconds-suffix {
+            font-size: clamp(0.95rem, 2vw, 1.8rem);
+            color: var(--graphite);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .hero__warning {
+            max-width: 68ch;
+            color: var(--mist);
+            line-height: 1.6;
+            font-size: 0.94rem;
+        }
+
+        .hero__warning strong {
+            color: var(--paper-white);
+            font-weight: 600;
+        }
+
+        .divider {
+            width: 100%;
+            height: 1px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .divider::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: var(--correction-red);
+            mask-image: repeating-linear-gradient(90deg, black 0, black 24px, transparent 24px, transparent 48px);
+            -webkit-mask-image: repeating-linear-gradient(90deg, black 0, black 24px, transparent 24px, transparent 48px);
+            animation: erode 3s linear infinite;
+        }
+
+        @keyframes erode {
+            from {
+                mask-position: 0 0;
+                -webkit-mask-position: 0 0;
+            }
+
+            to {
+                mask-position: -48px 0;
+                -webkit-mask-position: -48px 0;
+            }
+        }
+
+        .audit {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 3vw, 2rem);
+            padding: 1.8rem var(--page-padding) 2.1rem;
+        }
+
+        .audit__block {
+            display: grid;
+            gap: 1rem;
+            border-left: 1px solid var(--line);
+            padding-left: 1.2rem;
+        }
+
+        .audit__rows {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .audit__row {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: baseline;
+            padding-bottom: 0.7rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.11);
+        }
+
+        .audit__row:last-child {
+            border-bottom: 0;
+        }
+
+        .audit__label {
+            color: var(--mist);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        .audit__value {
+            font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+            font-weight: 700;
+        }
+
+        .heavy-tick {
+            display: inline-block;
+        }
+
+        .heavy-tick.drop {
+            animation: anvil 0.18s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        @keyframes anvil {
+            0% {
+                transform: translateY(4px);
+                color: var(--correction-red);
+            }
+
+            100% {
+                transform: translateY(0);
+                color: var(--paper-white);
+            }
+        }
+
+        .timeline {
+            padding: 0 var(--page-padding) 2rem;
+        }
+
+        .timeline__head {
+            display: grid;
+            gap: 0.65rem;
+            padding: 1.1rem 0 1.2rem;
+            border-top: 1px solid var(--line);
+        }
+
+        .timeline__summary {
+            max-width: 78ch;
+            color: var(--mist);
+            line-height: 1.6;
+            font-size: 0.93rem;
+        }
+
+        .event-list {
+            display: grid;
+            gap: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .event-row {
+            width: 100%;
+            border: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1.05rem 0;
+            background: transparent;
+            color: inherit;
+            display: grid;
+            grid-template-columns: minmax(220px, 1.5fr) minmax(140px, 0.9fr) minmax(150px, 1fr) minmax(200px, 1.1fr);
+            gap: 1rem;
+            align-items: start;
+            text-align: left;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .event-row::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.85rem;
+            bottom: 0.85rem;
+            width: 1px;
+            background: transparent;
+            transition: background 0.16s ease;
+        }
+
+        .event-row:hover::before,
+        .event-row:focus-visible::before,
+        .event-row.is-active::before {
+            background: var(--correction-red);
+        }
+
+        .event-row:hover,
+        .event-row:focus-visible,
+        .event-row.is-active {
+            background:
+                linear-gradient(90deg, rgba(255, 42, 42, 0.08), transparent 10%),
+                transparent;
+            outline: none;
+        }
+
+        .event-row__name {
+            padding-left: 1rem;
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .event-row__code {
+            color: var(--mist);
+            letter-spacing: 0.12em;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .event-row__title {
+            font-size: 1rem;
+            line-height: 1.45;
+        }
+
+        .event-row__meta,
+        .event-row__date,
+        .event-row__delta {
+            display: grid;
+            gap: 0.35rem;
+            padding-top: 0.05rem;
+        }
+
+        .event-row__hint {
+            color: var(--mist);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.11em;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: var(--paper-white);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+        }
+
+        .pill::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+        }
+
+        .pill--predicted-high {
+            color: var(--correction-red);
+        }
+
+        .pill--predicted-mid {
+            color: #ff8a6e;
+        }
+
+        .pill--official {
+            color: #a6a6a6;
+        }
+
+        .event-row__delta-main {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .event-row__delta-sub {
+            color: var(--mist);
+            font-size: 0.8rem;
+            line-height: 1.45;
+        }
+
+        .model-note {
+            display: grid;
+            gap: 0.75rem;
+            padding: 1.2rem 0 0;
+        }
+
+        .model-note__body {
+            display: grid;
+            gap: 0.9rem;
+            padding-left: 1rem;
+            border-left: 1px solid var(--line);
+        }
+
+        .model-note__title {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+
+        .model-note__tag {
+            color: var(--correction-red);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+        }
+
+        .model-note__text {
+            color: var(--mist);
+            line-height: 1.7;
+            font-size: 0.93rem;
+            max-width: 82ch;
+        }
+
+        .reference-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            padding: 2rem var(--page-padding) 2.6rem;
+            border-top: 1px solid var(--line);
+        }
+
+        .reference-block {
+            display: grid;
+            gap: 0.9rem;
+            border-left: 1px solid var(--line);
+            padding-left: 1rem;
+        }
+
+        .reference-list {
+            display: grid;
+            gap: 0.55rem;
+            color: var(--mist);
+            font-size: 0.88rem;
+            line-height: 1.55;
+        }
+
+        .footer-note {
+            padding: 0 var(--page-padding) 2rem;
+            color: var(--mist);
+            font-size: 0.83rem;
+            line-height: 1.7;
+        }
+
+        .footer-note strong {
+            color: var(--paper-white);
+            font-weight: 600;
+        }
+
+        @media (max-width: 1080px) {
+            .event-row {
+                grid-template-columns: 1.3fr 0.85fr 0.95fr;
+            }
+
+            .event-row__meta {
+                grid-column: 2;
+            }
+
+            .event-row__delta {
+                grid-column: 3;
+            }
+
+            .event-row__date {
+                grid-column: 1 / -1;
+                padding-left: 1rem;
+            }
+
+            .reference-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 820px) {
+            .topbar {
+                flex-direction: column;
+            }
+
+            .topbar__right {
+                align-items: flex-start;
+                text-align: left;
+            }
+
+            .hero {
+                min-height: auto;
+                padding-top: 3rem;
+            }
+
+            .audit {
+                grid-template-columns: 1fr;
+            }
+
+            .event-row {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .event-row__name,
+            .event-row__date {
+                padding-left: 1rem;
+            }
+
+            .event-row__meta,
+            .event-row__delta {
+                padding-left: 1rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .looming-grid,
+            .status-dot,
+            .divider::after,
+            .heavy-tick.drop {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="looming-grid" aria-hidden="true"></div>
+
+    <div class="app">
+        <header class="topbar">
+            <div class="topbar__left">
+                <div>KPM // SIJIL PELAJARAN MALAYSIA 2027</div>
+                <div class="muted">SEMUA MASA DALAM MYT (UTC+08:00)</div>
+            </div>
+
+            <div class="topbar__right">
+                <div class="status-line">
+                    <span class="status-dot"></span>
+                    <span>STATUS: TIDAK SELESAI</span>
+                </div>
+                <div class="muted">JADUAL 2027 BELUM DITERBITKAN SECARA RASMI</div>
+            </div>
+        </header>
+
+        <main class="hero">
+            <section class="hero__shell">
+                <div class="eyebrow">FASA TERDEKAT</div>
+
+                <div class="hero__title">
+                    <div id="heroFocus" class="hero__focus">MEMUATKAN FASA SETERUSNYA</div>
+                    <div id="heroDate" class="hero__date">--</div>
+                </div>
+
+                <div class="hero__seconds-label eyebrow">JUMLAH DETIK KE FASA INI</div>
+
+                <div class="hero__seconds">
+                    <div id="heroSeconds" class="massive-seconds heavy-tick">0</div>
+                    <div class="seconds-suffix">SAAT</div>
+                </div>
+
+                <p class="hero__warning" id="heroWarning">
+                    JADUAL DI BAWAH BUKAN JADUAL RASMI KPM. IA DIGUBAL DARIPADA POLA RASMI SPM 2024 DAN SPM 2025,
+                    DENGAN TARIKH 2028 KEPUTUSAN DIBERI TAHAP KEYAKINAN YANG LEBIH RENDAH.
+                </p>
+            </section>
+        </main>
+
+        <div class="divider" aria-hidden="true"></div>
+
+        <section class="audit" aria-label="Audit countdown">
+            <div class="audit__block">
+                <div class="eyebrow">PECAHAN MASA</div>
+                <div class="audit__rows">
+                    <div class="audit__row">
+                        <div class="audit__label">TAHUN</div>
+                        <div id="yearsValue" class="audit__value">0</div>
+                    </div>
+                    <div class="audit__row">
+                        <div class="audit__label">HARI</div>
+                        <div id="daysValue" class="audit__value">0</div>
+                    </div>
+                    <div class="audit__row">
+                        <div class="audit__label">JAM</div>
+                        <div id="hoursValue" class="audit__value">00</div>
+                    </div>
+                    <div class="audit__row">
+                        <div class="audit__label">MINIT</div>
+                        <div id="minutesValue" class="audit__value">00</div>
+                    </div>
+                    <div class="audit__row">
+                        <div class="audit__label">SAAT</div>
+                        <div id="secondsValue" class="audit__value heavy-tick">00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="audit__block">
+                <div class="eyebrow">JUMLAH MUTLAK</div>
+                <div class="audit__rows">
+                    <div class="audit__row">
+                        <div class="audit__label">JUMLAH MINGGU</div>
+                        <div id="weeksTotal" class="audit__value">0</div>
+                    </div>
+                    <div class="audit__row">
+                        <div class="audit__label">JUMLAH HARI</div>
+                        <div id="daysTotal" class="audit__value">0</div>
+                    </div>
+                    <div class="audit__row">
+                        <div class="audit__label">JUMLAH JAM</div>
+                        <div id="hoursTotal" class="audit__value">0</div>
+                    </div>
+                    <div class="audit__row">
+                        <div class="audit__label">JUMLAH MINIT</div>
+                        <div id="minutesTotal" class="audit__value">0</div>
+                    </div>
+                    <div class="audit__row">
+                        <div class="audit__label">JUMLAH SAAT</div>
+                        <div id="secondsTotal" class="audit__value">0</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="timeline" aria-labelledby="timelineHeading">
+            <div class="timeline__head">
+                <div id="timelineHeading" class="eyebrow">SEMUA TARIKH DALAM SATU PERMUKAAN</div>
+                <p class="timeline__summary">
+                    Tekan mana-mana baris untuk menukar fokus utama. Setiap baris ditandai sama ada <strong>RAMALAN TINGGI</strong>
+                    atau <strong>RAMALAN SEDERHANA</strong> supaya halaman ini mengekalkan tekanan tanpa menipu kepastian.
+                </p>
+            </div>
+
+            <div id="eventList" class="event-list" aria-label="Milestone SPM 2027"></div>
+
+            <div class="model-note">
+                <div class="eyebrow">ASAS MODEL TARIKH</div>
+
+                <div class="model-note__body">
+                    <div class="model-note__title">
+                        <div id="selectedBasisTitle">MEMUATKAN ASAS TARIKH</div>
+                        <div id="selectedBasisTag" class="model-note__tag">RAMALAN</div>
+                    </div>
+
+                    <p id="selectedBasisText" class="model-note__text">
+                        --
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="reference-grid" aria-label="Rujukan model">
+            <div class="reference-block">
+                <div class="eyebrow">SPM 2025 // RASMI</div>
+                <div class="reference-list">
+                    <div>BM bertutur: 03-06 Nov 2025</div>
+                    <div>BI bertutur: 10-13 Nov 2025</div>
+                    <div>Amali Sains: 17-19 Nov 2025</div>
+                    <div>Mendengar: 20 Nov 2025</div>
+                    <div>Bertulis: 25 Nov-23 Dis 2025</div>
+                    <div>Keputusan: 31 Mac 2026</div>
+                </div>
+            </div>
+
+            <div class="reference-block">
+                <div class="eyebrow">SPM 2024 // RASMI</div>
+                <div class="reference-list">
+                    <div>BM bertutur: 02-05 Dis 2024</div>
+                    <div>Amali Sains: 09, 10, 12 Dis 2024</div>
+                    <div>BI bertutur: 16-19 Dis 2024</div>
+                    <div>Mendengar: 31 Dis 2024</div>
+                    <div>Bertulis: 02 Jan-06 Feb 2025</div>
+                    <div>Keputusan: 24 Apr 2025</div>
+                </div>
+            </div>
+
+            <div class="reference-block">
+                <div class="eyebrow">HASIL RAMALAN 2027</div>
+                <div class="reference-list">
+                    <div>Kalendar 2027 membenarkan blok Isnin-Khamis dan Selasa-Selasa meniru struktur rasmi 2025 hampir tepat.</div>
+                    <div>Tarikh keputusan 2028 diberi keyakinan sederhana sahaja kerana sela semakan berubah antara 2024, 2025, dan 2026.</div>
+                    <div>Apabila KPM keluarkan jadual rasmi 2027, gantikan data RAMALAN di skrip ini dengan tarikh rasmi.</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="footer-note">
+            <strong>Nota integriti:</strong> laman ini sengaja mewujudkan rasa tertekan melalui nombor sebenar, gerakan looming, dan struktur yang tidak memberi penutup visual.
+            Ia tidak sepatutnya dipersembahkan sebagai sumber rasmi KPM sehingga jadual 2027 benar-benar diterbitkan.
+        </div>
+    </div>
+
+    <script>
+        // =============================================================================
+        // IMPORTANT:
+        // As of 2026-04-19, KPM has not yet published the official SPM 2027 timetable.
+        // Every 2027/2028 date below is a prediction. Replace each item with official
+        // dates and set status to "RASMI" once KPM releases the actual schedule.
+        // =============================================================================
+        const MILESTONES = [
+            {
+                id: "bm-oral",
+                code: "BM // BERTUTUR",
+                title: "Ujian Bertutur Bahasa Melayu bermula",
+                date: "2027-11-01T08:00:00+08:00",
+                status: "RAMALAN TINGGI",
+                basis:
+                    "Diunjurkan pada Isnin, 1 November 2027 kerana kalendar 2027 memadankan semula blok rasmi SPM 2025 yang bermula Isnin-Khamis pada minggu pertama November. Struktur ini lebih kukuh daripada sekadar tekaan rawak.",
+            },
+            {
+                id: "bi-oral",
+                code: "BI // BERTUTUR",
+                title: "Ujian Bertutur Bahasa Inggeris bermula",
+                date: "2027-11-08T08:00:00+08:00",
+                status: "RAMALAN TINGGI",
+                basis:
+                    "Diletakkan seminggu selepas ujian bertutur BM, meniru sela rasmi SPM 2025 yang mengasingkan dua komponen lisan ini kepada blok minggu berturutan.",
+            },
+            {
+                id: "science-practical",
+                code: "SAINS // AMALI",
+                title: "Ujian Amali Sains bermula",
+                date: "2027-11-15T08:00:00+08:00",
+                status: "RAMALAN TINGGI",
+                basis:
+                    "Dijajarkan ke minggu ketiga November kerana SPM 2025 meletakkan amali sains selepas dua blok ujian bertutur, dalam kelompok tiga hari sekolah yang padat.",
+            },
+            {
+                id: "listening",
+                code: "BM+BI // MENDENGAR",
+                title: "Ujian Mendengar Bahasa Melayu dan Bahasa Inggeris",
+                date: "2027-11-18T08:00:00+08:00",
+                status: "RAMALAN TINGGI",
+                basis:
+                    "Diunjurkan pada Khamis selepas blok amali sains, sama seperti susunan rasmi SPM 2025 yang meletakkan komponen mendengar tepat sebelum fasa bertulis.",
+            },
+            {
+                id: "written-start",
+                code: "SPM // BERTULIS MULA",
+                title: "Peperiksaan bertulis bermula",
+                date: "2027-11-23T08:00:00+08:00",
+                status: "RAMALAN TINGGI",
+                basis:
+                    "Tarikh ini mengekalkan pola rasmi 2025: komponen bertulis bermula pada hari Selasa selepas jeda singkat dari ujian mendengar, lalu mengekalkan rentak audit peperiksaan yang sama.",
+            },
+            {
+                id: "written-end",
+                code: "SPM // BERTULIS TAMAT",
+                title: "Peperiksaan bertulis tamat",
+                date: "2027-12-21T15:00:00+08:00",
+                status: "RAMALAN TINGGI",
+                basis:
+                    "Akhir peperiksaan diletakkan pada Selasa, 21 Disember 2027 supaya panjang keseluruhan fasa bertulis hampir memantulkan rentang rasmi 2025, iaitu sekitar empat minggu kalendar.",
+            },
+            {
+                id: "results",
+                code: "KEPUTUSAN // KELUAR",
+                title: "Keputusan SPM 2027 dikeluarkan",
+                date: "2028-03-30T10:00:00+08:00",
+                status: "RAMALAN SEDERHANA",
+                basis:
+                    "Ini ramalan paling lemah. Ia diletakkan pada hujung Mac 2028 kerana keputusan SPM 2023 keluar pada 27 Mei 2024, SPM 2024 pada 24 April 2025, dan SPM 2025 pada 31 Mac 2026. Trendnya sedang bergerak lebih awal, tetapi sela pemprosesan belum stabil sepenuhnya.",
+            },
+        ].map((item) => ({ ...item, timestamp: new Date(item.date).getTime() }));
+
+        const elements = {
+            heroFocus: document.getElementById("heroFocus"),
+            heroDate: document.getElementById("heroDate"),
+            heroSeconds: document.getElementById("heroSeconds"),
+            heroWarning: document.getElementById("heroWarning"),
+            yearsValue: document.getElementById("yearsValue"),
+            daysValue: document.getElementById("daysValue"),
+            hoursValue: document.getElementById("hoursValue"),
+            minutesValue: document.getElementById("minutesValue"),
+            secondsValue: document.getElementById("secondsValue"),
+            weeksTotal: document.getElementById("weeksTotal"),
+            daysTotal: document.getElementById("daysTotal"),
+            hoursTotal: document.getElementById("hoursTotal"),
+            minutesTotal: document.getElementById("minutesTotal"),
+            secondsTotal: document.getElementById("secondsTotal"),
+            eventList: document.getElementById("eventList"),
+            selectedBasisTitle: document.getElementById("selectedBasisTitle"),
+            selectedBasisTag: document.getElementById("selectedBasisTag"),
+            selectedBasisText: document.getElementById("selectedBasisText"),
+        };
+
+        const numberFormatter = new Intl.NumberFormat("en-US");
+        const dateFormatter = new Intl.DateTimeFormat("ms-MY", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            timeZone: "Asia/Kuala_Lumpur",
+        });
+        const shortDateFormatter = new Intl.DateTimeFormat("ms-MY", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            timeZone: "Asia/Kuala_Lumpur",
+        });
+        const weekdayFormatter = new Intl.DateTimeFormat("ms-MY", {
+            weekday: "short",
+            timeZone: "Asia/Kuala_Lumpur",
+        });
+
+        let selectedId = getNearestUpcomingEvent().id;
+        let lastRenderedSecond = -1;
+
+        renderEventRows();
+        updateSelectedBasis(getSelectedEvent());
+        requestAnimationFrame(tick);
+
+        function getNearestUpcomingEvent() {
+            const now = Date.now();
+            return MILESTONES.find((item) => item.timestamp > now) || MILESTONES[MILESTONES.length - 1];
+        }
+
+        function getSelectedEvent() {
+            return MILESTONES.find((item) => item.id === selectedId) || getNearestUpcomingEvent();
+        }
+
+        function renderEventRows() {
+            elements.eventList.innerHTML = "";
+
+            for (const item of MILESTONES) {
+                const row = document.createElement("button");
+                row.type = "button";
+                row.className = "event-row";
+                row.dataset.id = item.id;
+
+                const pillClass = item.status === "RAMALAN TINGGI" ? "pill--predicted-high" : "pill--predicted-mid";
+
+                row.innerHTML = `
+                    <div class="event-row__name">
+                        <div class="event-row__code">${item.code}</div>
+                        <div class="event-row__title">${item.title}</div>
+                    </div>
+                    <div class="event-row__meta">
+                        <div class="event-row__hint">Status</div>
+                        <div class="pill ${pillClass}">${item.status}</div>
+                    </div>
+                    <div class="event-row__date">
+                        <div class="event-row__hint">Tarikh sasaran</div>
+                        <div>${formatDate(item.timestamp)}</div>
+                    </div>
+                    <div class="event-row__delta">
+                        <div class="event-row__hint">Delta</div>
+                        <div class="event-row__delta-main" data-delta="${item.id}">--</div>
+                        <div class="event-row__delta-sub">${formatShortStamp(item.timestamp)}</div>
+                    </div>
+                `;
+
+                row.addEventListener("click", () => {
+                    selectedId = item.id;
+                    syncActiveRow();
+                    updateSelectedBasis(item);
+                    updateHero(item);
+                    updateCountdownValues(item, Date.now(), true);
+                });
+
+                elements.eventList.appendChild(row);
+            }
+
+            syncActiveRow();
+        }
+
+        function syncActiveRow() {
+            const rows = elements.eventList.querySelectorAll(".event-row");
+            rows.forEach((row) => {
+                row.classList.toggle("is-active", row.dataset.id === selectedId);
+            });
+        }
+
+        function updateSelectedBasis(item) {
+            elements.selectedBasisTitle.textContent = item.title;
+            elements.selectedBasisTag.textContent = item.status;
+            elements.selectedBasisText.textContent = item.basis;
+        }
+
+        function updateHero(item) {
+            elements.heroFocus.textContent = item.title;
+            elements.heroDate.textContent = formatDate(item.timestamp).toUpperCase();
+            elements.heroWarning.innerHTML =
+                `TARIKH INI DITANDAI SEBAGAI <strong>${item.status}</strong>. ${item.basis.toUpperCase()}`;
+        }
+
+        function tick() {
+            const now = Date.now();
+            const currentSecond = Math.floor(now / 1000);
+
+            if (currentSecond !== lastRenderedSecond) {
+                lastRenderedSecond = currentSecond;
+
+                const nearest = getNearestUpcomingEvent();
+                if (!selectedId || !MILESTONES.some((item) => item.id === selectedId)) {
+                    selectedId = nearest.id;
+                    syncActiveRow();
+                }
+
+                const selected = getSelectedEvent();
+                updateHero(selected);
+                updateCountdownValues(selected, now);
+                updateEventDeltas(now);
+            }
+
+            requestAnimationFrame(tick);
+        }
+
+        function updateCountdownValues(item, now, forceAnimate = false) {
+            const diffMs = Math.max(0, item.timestamp - now);
+            const breakdown = getBreakdown(now, item.timestamp);
+            const totals = getTotals(diffMs);
+
+            if (forceAnimate || diffMs > 0) {
+                triggerHeavyTick(elements.heroSeconds, elements.secondsValue);
+            }
+
+            elements.heroSeconds.textContent = numberFormatter.format(totals.seconds);
+            elements.yearsValue.textContent = breakdown.years;
+            elements.daysValue.textContent = breakdown.days;
+            elements.hoursValue.textContent = pad(breakdown.hours);
+            elements.minutesValue.textContent = pad(breakdown.minutes);
+            elements.secondsValue.textContent = pad(breakdown.seconds);
+            elements.weeksTotal.textContent = numberFormatter.format(totals.weeks);
+            elements.daysTotal.textContent = numberFormatter.format(totals.days);
+            elements.hoursTotal.textContent = numberFormatter.format(totals.hours);
+            elements.minutesTotal.textContent = numberFormatter.format(totals.minutes);
+            elements.secondsTotal.textContent = numberFormatter.format(totals.seconds);
+        }
+
+        function updateEventDeltas(now) {
+            for (const item of MILESTONES) {
+                const deltaNode = elements.eventList.querySelector(`[data-delta="${item.id}"]`);
+                if (!deltaNode) {
+                    continue;
+                }
+
+                const diffMs = item.timestamp - now;
+
+                if (diffMs <= 0) {
+                    deltaNode.textContent = "TELAH LEPAS";
+                    continue;
+                }
+
+                const totalHours = Math.floor(diffMs / 3600000);
+                const totalDays = Math.floor(diffMs / 86400000);
+                const hoursLeft = Math.floor((diffMs % 86400000) / 3600000);
+
+                if (totalDays >= 1) {
+                    deltaNode.textContent = `T-${numberFormatter.format(totalDays)} HARI ${pad(hoursLeft)} JAM`;
+                } else {
+                    const minutesLeft = Math.floor((diffMs % 3600000) / 60000);
+                    deltaNode.textContent = `T-${numberFormatter.format(totalHours)} JAM ${pad(minutesLeft)} MINIT`;
+                }
+            }
+        }
+
+        function getBreakdown(nowMs, targetMs) {
+            let cursor = new Date(nowMs);
+            const target = new Date(targetMs);
+            let years = 0;
+
+            while (true) {
+                const candidate = new Date(cursor.getTime());
+                candidate.setFullYear(candidate.getFullYear() + 1);
+                if (candidate.getTime() <= targetMs) {
+                    years += 1;
+                    cursor = candidate;
+                } else {
+                    break;
+                }
+            }
+
+            let remainder = Math.max(0, targetMs - cursor.getTime());
+            const dayMs = 24 * 60 * 60 * 1000;
+            const hourMs = 60 * 60 * 1000;
+            const minuteMs = 60 * 1000;
+            const secondMs = 1000;
+
+            const days = Math.floor(remainder / dayMs);
+            remainder -= days * dayMs;
+
+            const hours = Math.floor(remainder / hourMs);
+            remainder -= hours * hourMs;
+
+            const minutes = Math.floor(remainder / minuteMs);
+            remainder -= minutes * minuteMs;
+
+            const seconds = Math.floor(remainder / secondMs);
+
+            return { years, days, hours, minutes, seconds };
+        }
+
+        function getTotals(diffMs) {
+            const seconds = Math.floor(diffMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            const weeks = Math.floor(days / 7);
+
+            return { seconds, minutes, hours, days, weeks };
+        }
+
+        function triggerHeavyTick(...nodes) {
+            for (const node of nodes) {
+                node.classList.remove("drop");
+                void node.offsetWidth;
+                node.classList.add("drop");
+            }
+        }
+
+        function formatDate(timestamp) {
+            return dateFormatter.format(new Date(timestamp));
+        }
+
+        function formatShortStamp(timestamp) {
+            const date = new Date(timestamp);
+            return `${weekdayFormatter.format(date).toUpperCase()} // ${shortDateFormatter.format(date).toUpperCase()}`;
+        }
+
+        function pad(value) {
+            return String(value).padStart(2, "0");
+        }
+    </script>
+</body>
+</html>
